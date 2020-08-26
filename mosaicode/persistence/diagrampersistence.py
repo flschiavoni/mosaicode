@@ -34,6 +34,7 @@ class DiagramPersistence():
         if not isinstance(diagram, DiagramModel):
             return False
         from mosaicode.control.diagramcontrol import DiagramControl
+        System()
         dc = DiagramControl(diagram)
         # load the diagram
         parser = XMLParser(diagram.file_name)
@@ -94,30 +95,23 @@ class DiagramPersistence():
         connections = parser.getTag("connections")
         connections = connections.getChildTags("connection")
         for conn in connections:
-            try:
-                from_block = diagram.blocks[int(conn.from_block)]
-                to_block = diagram.blocks[int(conn.to_block)]
-                port_index = int(conn.getAttr("from_out"))
-                if port_index > 0 and port_index < len(from_block.ports):
-                    from_block_out = from_block.ports[port_index]
-                    if from_block_out.is_input():
-                        continue
-                else:
-                    continue
-                port_index = int(conn.getAttr("to_in"))
-                if port_index > 0 and port_index < len(to_block.ports):
-                    to_block_in = to_block.ports[port_index]
-                    if not to_block_in.is_input():
-                        continue
-                else:
-                    continue
-            except:
-                continue
+            index = int(conn.from_block)
+            from_block = diagram.blocks[index]
+
+            index = int(conn.to_block)
+            to_block = diagram.blocks[index]
+
+            index = int(conn.getAttr("from_out"))
+            from_block_out = from_block.ports[index]
+
+            index = int(conn.getAttr("to_in"))
+            to_block_in = to_block.ports[index]
+
             connection = ConnectionModel(diagram,
-                                from_block,
-                                from_block_out,
-                                to_block,
-                                to_block_in)
+                            from_block,
+                            from_block_out,
+                            to_block,
+                            to_block_in)
             dc.add_connection(connection)
 
         comments = parser.getTag("comments")

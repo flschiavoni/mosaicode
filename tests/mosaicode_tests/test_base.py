@@ -46,14 +46,24 @@ class TestBase(unittest.TestCase):
     def create_full_diagram(self):
         main_window = self.create_main_window()
         diagram = Diagram(main_window)
-        diagram_control = self.create_diagram_control()
-        diagram = diagram_control.diagram
+        self.assertEquals(diagram.last_id, 0)
+        diagram.language = "Test"
+        diagram.zoom = 2
+        diagram_control = self.create_diagram_control(diagram)
 
-        block1 = self.create_block()
-        diagram_control.add_block(block1)
+        block1 = self.create_block(diagram_control)
+        result = diagram_control.add_block(block1)
+        assert result
+        self.assertEquals(diagram.last_id, 1)
+        self.assertEquals(len(diagram.blocks),1)
+        self.assertEquals(len(diagram.blocks[0].ports), 4)
 
-        block2 = self.create_block()
-        diagram_control.add_block(block2)
+        block2 = self.create_block(diagram_control)
+        result = diagram_control.add_block(block2)
+        assert result
+        self.assertEquals(diagram.last_id, 2)
+        self.assertEquals(len(diagram.blocks),2)
+        self.assertEquals(len(diagram.blocks[1].ports), 4)
 
         connection = ConnectionModel(
                     diagram,
@@ -62,7 +72,8 @@ class TestBase(unittest.TestCase):
                     block2,
                     block2.ports[1]
                     )
-        diagram_control.add_connection(connection)
+        result = diagram_control.add_connection(connection)
+        self.assertEquals(result[0], False)
 
         connection = ConnectionModel(
                     diagram,
@@ -71,13 +82,24 @@ class TestBase(unittest.TestCase):
                     block2,
                     block2.ports[0]
                     )
-        diagram_control.add_connection(connection)
+        result = diagram_control.add_connection(connection)
+        self.assertEquals(result[1], "Success")
+
+        connection = ConnectionModel(
+                    diagram,
+                    block1,
+                    block1.ports[1],
+                    block1,
+                    block1.ports[0]
+                    )
+        result = diagram_control.add_connection(connection)
+        self.assertEquals(result[0], False)
 
         connection = ConnectionModel(diagram, None, None, None, None)
-        diagram_control.add_connection(connection)
+        result = diagram_control.add_connection(connection)
+        self.assertEquals(result[0], False)
 
-        comment = self.create_comment()
-        main_window.main_control.add_comment(comment)
+        comment = self.create_comment(diagram)
         diagram_control.add_comment(comment)
         return diagram
 
@@ -94,23 +116,33 @@ class TestBase(unittest.TestCase):
         if diagram_control is None:
             diagram_control = self.create_diagram_control()
 
+        System()
         block_model = BlockModel()
+        System.add_port(self.create_port())
 
-        port0 = Port()
-        port0.label = "Test0"
-        port0.conn_type = Port.OUTPUT
-        port0.name = "Test0"
-        port0.type = "Test"
-        port0.index = 0
+        block_model.ports = [{
+                "type":"Test",
+                "label":"Click",
+                "conn_type":"Input",
+                "name":"0"
+                },{
+                "type":"Test",
+                "label":"Click",
+                "conn_type":"Output",
+                "name":"1"
+                },{
+                "type":"Test",
+                "label":"Click",
+                "conn_type":"Input",
+                "name":"2"
+                },{
+                "type":"Test",
+                "label":"Click",
+                "conn_type":"Output",
+                "name":"3"
+                }
+                ]
 
-        port1 = Port()
-        port1.label = "Test1"
-        port1.conn_type = Port.INPUT
-        port1.name = "Test1"
-        port1.type = "Test"
-        port1.index = 1
-
-        block_model.ports = [port0, port1]
 
         block_model.help = "Test"
         block_model.label = "Test"
@@ -128,16 +160,35 @@ class TestBase(unittest.TestCase):
                              }]
         block_model.extension = "Test"
         block_model.file = None
+
+        result = BlockControl.load_ports(block_model, System.get_ports())
+        System.add_block(block_model)
+        self.assertEquals(result[1], "Success")
+        self.assertEquals(result[0], True)
+        self.assertEquals(len(block_model.ports),4)
+
         block = Block(diagram_control.diagram, block_model)
-        System.get_blocks()[block.type] = block
+        self.assertEquals(len(block.ports),4)
+
         return block
 
-    def create_comment(self):
-        comment = Comment(self.create_diagram(), None)
+    def create_comment(self, diagram = None):
+        if diagram is None:
+            comment = Comment(self.create_diagram(), None)
+        else:
+            comment = Comment(diagram, None)
         return comment
 
     def create_port(self):
         port = Port()
+        port.type = "Test"
+        port.language = "Test"
+        port.hint = "Test"
+        port.color = "#000"
+        port.multiple = False
+        port.file = None
+        port.code = ""
+        port.var_name = "$block[label]$_$block[id]$_$port[name]$"
         return port
 
     def create_code_template(self):

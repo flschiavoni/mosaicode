@@ -183,9 +183,21 @@ class DiagramControl:
             Returns:
                 * **Types** (:class:`boolean<boolean>`)
         """
+        if connection.diagram != self.diagram:
+            return False, "Wrong Diagram"
+
+        if connection.output == connection.input:
+            return False, "Self connection is not allowed"
+
+        if not connection.input_port.is_input():
+            return False, "Input port is not input"
+
+        if connection.output_port.is_input():
+            return False, "Output port is not output"
+
         self.do("Add Connection")
         self.diagram.connectors.append(connection)
-        return True
+        return True, "Success"
 
     # ----------------------------------------------------------------------
     def collapse_all(self, status):

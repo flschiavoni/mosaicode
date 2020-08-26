@@ -7,10 +7,10 @@ class ConnectionModel(object):
 # pylint: disable=too-many-instance-attributes
 # pylint: disable-msg=too-many-arguments
 
-    def __init__(self, diagram, output, output_port, input=None, input_port=None):
+    def __init__(self, diagram, output, output_port, input_=None, input_port=None):
         self.output = output
         self.output_port = output_port
-        self.input = input
+        self.input = input_
         self.input_port = input_port
         self.diagram = diagram
 

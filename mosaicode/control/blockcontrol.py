@@ -51,15 +51,20 @@ class BlockControl():
         in_port = 0
         out_port = 0
         new_ports = []
+        result = True, "Success"
         for port in block.ports:
             # if it is not a dictionary, dunno what to do. What happened?
             if not isinstance(port, dict):
+                result = False, "Not a dict"
                 continue
             if "type" not in port:
+                result = False, "This port does not have a type"
                 continue
             port_type = port["type"]
+
             # Create a copy from the port instance loaded in the System
             if port_type not in ports:
+                result = False, "This is not a system port"
                 continue
             new_port = copy.deepcopy(ports[port_type])
 
@@ -83,6 +88,7 @@ class BlockControl():
             new_ports.append(new_port)
         block.maxIO = max(in_port, out_port)
         block.ports = new_ports
+        return result
 
     # ----------------------------------------------------------------------
     @classmethod

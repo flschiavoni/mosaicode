@@ -6,7 +6,7 @@ class DiagramModel(object):
 
     # ----------------------------------------------------------------------
     def __init__(self):
-        self.last_id = 1  # first block is n1, increments to each new block
+        self.last_id = 0  # first block is n1, increments to each new block
         self.blocks = {}  # GUI blocks
         self.connectors = []
         self.comments = []

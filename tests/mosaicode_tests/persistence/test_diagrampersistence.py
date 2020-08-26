@@ -3,6 +3,7 @@ from mosaicode.utils.FileUtils import *
 from mosaicode.GUI.comment import Comment
 from mosaicode.GUI.block import Block
 from mosaicode.GUI.diagram import Diagram
+from mosaicode.model.blockmodel import BlockModel
 from mosaicode.model.port import Port
 from mosaicode.persistence.portpersistence import PortPersistence
 from mosaicode.control.diagramcontrol import DiagramControl
@@ -13,14 +14,6 @@ class PreferencesPersistenceTest(TestBase):
 
     def test_load_save(self):
         diagram = self.create_full_diagram()
-        diagram.file_name = "/tmp/Diagram.msc"
-        result = DiagramPersistence.save(diagram)
-        assert result
-        result = DiagramPersistence.load(diagram)
-        assert result
-        os.remove(diagram.file_name)
-
-        diagram = self.create_diagram()
         diagram.file_name = "/tmp/Diagram.msc"
         result = DiagramPersistence.save(diagram)
         assert result

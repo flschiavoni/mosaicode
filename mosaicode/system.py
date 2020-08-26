@@ -83,6 +83,10 @@ class System(object):
             return copy(self.__blocks)
 
         # ----------------------------------------------------------------------
+        def add_block(self, block):
+            self.__blocks[block.type] = block
+
+        # ----------------------------------------------------------------------
         def remove_block(self, block):
             try:
                 return self.__blocks.pop(block.type)
@@ -96,6 +100,17 @@ class System(object):
         # ----------------------------------------------------------------------
         def get_ports(self):
             return copy(self.__ports)
+
+        # ----------------------------------------------------------------------
+        def add_port(self, port):
+            self.__ports[port.type] = port
+
+        # ----------------------------------------------------------------------
+        def remove_port(self, port):
+            try:
+                return self.__ports.pop(port.type)
+            except:
+                return None
 
         # ----------------------------------------------------------------------
         def get_preferences(self):
@@ -294,6 +309,14 @@ class System(object):
 
     # ----------------------------------------------------------------------
     @classmethod
+    def add_block(cls, block):
+        """
+        This method returns System installed blocks.
+        """
+        return cls.instance.add_block(block)
+
+    # ----------------------------------------------------------------------
+    @classmethod
     def get_code_templates(cls):
         """
         This method returns System installed code templates.
@@ -307,6 +330,22 @@ class System(object):
         This method returns System installed ports.
         """
         return cls.instance.get_ports()
+
+    # ----------------------------------------------------------------------
+    @classmethod
+    def add_port(cls, port):
+        """
+        This method returns System installed ports.
+        """
+        return cls.instance.add_port(port)
+
+    # ----------------------------------------------------------------------
+    @classmethod
+    def remove_port(cls, port):
+        """
+        This method returns System installed ports.
+        """
+        return cls.instance.remove_port(port)
 
     # ----------------------------------------------------------------------
     @classmethod
