@@ -48,6 +48,7 @@ class ColorField(Field):
         self.event = event
         self.set_value(self.data["value"])
         self.format = self.data["format"]
+        self.dialog = None
 
         self.show_all()
 
@@ -69,7 +70,8 @@ class ColorField(Field):
                 color_selection.set_current_rgba(self.color)
             except:
                 pass
-        response = self.dialog.show()
+
+        response = self.dialog.run()
         if response == Gtk.ResponseType.OK:
             color_selection = self.dialog.get_color_selection()
             self.color = color_selection.get_current_rgba()

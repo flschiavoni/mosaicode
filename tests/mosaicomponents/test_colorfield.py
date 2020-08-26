@@ -18,7 +18,7 @@ class TestColorField(unittest.TestCase):
         self.field = ColorField({}, self.event)
         self.field.set_parent_window(Gtk.Window.new(Gtk.WindowType.TOPLEVEL))
 
-    def close_window(self):
+    def close_window_on_ok(self):
         self.field.dialog.response(Gtk.ResponseType.OK)
         self.t1.join()
 
@@ -36,7 +36,7 @@ class TestColorField(unittest.TestCase):
         self.t1 = threading.Thread(target=button.clicked)
         self.t1.start()
         sleep(0.5)
-        self.close_window()
+        self.close_window_on_ok()
 
     def test_value(self):
         self.field = ColorField({"value": "#fff","format": "FFF"}, None)
