@@ -352,8 +352,7 @@ class Menu(Gtk.MenuBar):
             return False
 
         for index, recent_file in enumerate(list_of_recent_files):
-            item_name = str(index)+': '+recent_file
-            menu_item = Gtk.MenuItem.new_with_label(item_name)
+            menu_item = Gtk.MenuItem.new_with_label(recent_file)
             self.recent_files_menu.append(menu_item)
             menu_item.connect("activate", self.__load_recent, None)
 

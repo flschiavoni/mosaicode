@@ -3,9 +3,10 @@
 
 from mosaicode.GUI.fieldtypes import *
 
+
 class CommentModel(object):
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-few-public-methods
+    # pylint: disable=too-many-instance-attributes
     """
     This class contains the base attributes of each block,
     their position on the screen, id and others applicable properties for
@@ -19,11 +20,11 @@ class CommentModel(object):
         self.x = 0
         self.y = 0
         self.properties = [
-                {"label": "Text",
-                "name": "text",
-                "value": "Comment",
-                "type": MOSAICODE_COMMENT,
-                }]
+            {"label": "Text",
+             "name": "text",
+             "value": "Comment",
+             "type": MOSAICODE_COMMENT,
+             }]
 
         if comment is None:
             return

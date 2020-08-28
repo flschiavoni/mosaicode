@@ -28,10 +28,11 @@ class TestMenu(TestBase):
         self.menu.update_examples(System.get_list_of_examples())
         System.get_list_of_examples().append("test")
         self.menu.update_examples(System.get_list_of_examples())
-        # language
-        self.menu.example_menu.get_children()[0].activate()
-        # extension
-        self.menu.example_menu.get_children()[0].get_children()[0].activate()
+        example_menu = self.menu.example_menu
+        language = example_menu.get_children()[0].get_submenu()
+        extension = language.get_children()[0].get_submenu()
+        example = extension.get_children()[0]
+        example.emit("activate")
 
     def test_update_recent_files(self):
         self.menu.update_recent_files(["file1", "file2"])
@@ -39,8 +40,16 @@ class TestMenu(TestBase):
         self.menu.update_recent_files(None)
 
     def test_update_blocks(self):
+        System()
         self.menu.update_blocks(System.get_blocks())
         self.menu.update_blocks(System.get_blocks())
+
+        block_menu = self.menu.block_menu
+        language = block_menu.get_children()[0].get_submenu()
+        framework = language.get_children()[0].get_submenu()
+        group = framework.get_children()[0].get_submenu()
+        block = group.get_children()[0]
+        block.emit("activate")
 
     def test_menu_item(self):
         self.menu.actions.keys()[0].emit("activate")

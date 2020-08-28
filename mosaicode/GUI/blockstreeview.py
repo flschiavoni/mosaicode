@@ -27,7 +27,7 @@ class BlocksTreeView(Gtk.ScrolledWindow):
 
         self.tree_store = Gtk.TreeStore(str, str, str, str, object)
         self.filter = self.tree_store.filter_new()
-        self.filter.set_visible_func(self.__filter_func)
+        self.filter.set_visible_func(self.__filter_func, data=None)
         self.blocks_tree_view = Gtk.TreeView.new_with_model(self.filter)
         self.add(self.blocks_tree_view)
 
@@ -87,35 +87,42 @@ class BlocksTreeView(Gtk.ScrolledWindow):
 
         """
         category = self.__contains_category(block.group)
-        self.tree_store.append(category,
-                        [block.label.title()[0],
-                        block.label,
-                        "white",
-                        block.get_color_as_rgba(),
-                        block
-                        ])
+        self.tree_store.append(
+                        category,
+                            [
+                            block.label.title()[0],
+                            block.label,
+                            "white",
+                            block.get_color_as_rgba(),
+                            block
+                            ]
+                        )
 
     # ----------------------------------------------------------------------
     def __append_category(self, category_name):
-        return self.tree_store.append(None, [None, str(category_name),
-                    "white",
-                    "white",
-                    None])
+        return self.tree_store.append(
+                    None,
+                        [
+                        None, str(category_name),
+                        "white",
+                        "white",
+                        None
+                        ]
+                    )
 
     # ----------------------------------------------------------------------
     def __contains_category(self, category_name):
         """
         This method verify if category name already exists.
         """
-        iter = self.tree_store.get_iter_first()
-        while iter is not None:
-            if category_name in self.tree_store[iter][:]:
-                return iter
-            iter = self.tree_store.iter_next(iter)
-        return __append_category(category_name)
+        i = self.tree_store.get_iter_first()
+        while i is not None:
+            if category_name in self.tree_store[i][:]:
+                return i
+            i = self.tree_store.iter_next(i)
 
     # ----------------------------------------------------------------------
-    def __filter_func(self, model, iter, data):
+    def __filter_func(self, model, iterator, data):
         """
         This methods filters the functions.
         """
@@ -125,9 +132,9 @@ class BlocksTreeView(Gtk.ScrolledWindow):
             return True
         if self.current_filter == "":
             return True
-        if self.tree_store.iter_children(iter) is not None:
+        if self.tree_store.iter_children(iterator) is not None:
             return True
-        return self.current_filter in model[iter][1].upper()
+        return self.current_filter in model[iterator][1].upper()
 
     # ----------------------------------------------------------------------
     def __on_tree_selection_changed(self, treeview):

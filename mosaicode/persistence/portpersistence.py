@@ -4,9 +4,6 @@
 This module contains the PortPersistence class.
 """
 import os
-import inspect  # For module inspect
-import pkgutil  # For dynamic package load
-from os.path import join
 from mosaicode.utils.XMLUtils import XMLParser
 from mosaicode.model.port import Port
 from mosaicode.persistence.persistence import Persistence

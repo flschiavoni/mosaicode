@@ -30,7 +30,12 @@ class TestCodeTemplate(TestBase):
 
     # ----------------------------------------------------------------------
     def test_delete_code_template(self):
-        pass
+        code_template = self.create_code_template()
+        CodeTemplateControl.add_code_template(code_template)
+        CodeTemplateControl.delete_code_template(code_template)
+        System()
+        System.reload()
+        CodeTemplateControl.delete_code_template(code_template.type)
 
     # ----------------------------------------------------------------------
     def test_print_template(self):

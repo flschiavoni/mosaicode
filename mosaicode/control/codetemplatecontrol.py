@@ -57,6 +57,7 @@ class CodeTemplateControl():
     @classmethod
     def delete_code_template(cls, code_template_key):
         from mosaicode.system import System
+        System()
         code_templates = System.get_code_templates()
         if code_template_key not in code_templates:
             return False

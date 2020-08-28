@@ -8,6 +8,7 @@ from gi.repository import GLib
 import unittest
 from time import sleep
 from abc import ABCMeta
+from mosaicode.system import System as System
 from mosaicode.GUI.block import Block
 from mosaicode.GUI.comment import Comment
 from mosaicode.GUI.diagram import Diagram
@@ -19,7 +20,6 @@ from mosaicode.model.codetemplate import CodeTemplate
 from mosaicode.model.connectionmodel import ConnectionModel
 from mosaicode.control.diagramcontrol import DiagramControl
 from mosaicode.control.blockcontrol import BlockControl
-from mosaicode.system import System
 from mosaicode.GUI.fieldtypes import *
 from mosaicode.model.port import Port
 

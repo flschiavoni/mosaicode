@@ -3,12 +3,13 @@
 """
 This module contains the DiagramControl class.
 """
-import os
 import gi
+
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
-from copy import deepcopy
 from copy import copy
+from datetime import datetime
+from mosaicode.utils.FileUtils import *
 from mosaicode.system import System as System
 from mosaicode.persistence.diagrampersistence import DiagramPersistence
 from mosaicode.GUI.comment import Comment
@@ -98,7 +99,6 @@ class DiagramControl:
             comment.is_selected = True
             comment = self.diagram.main_window.main_control.add_comment(comment)
 
-
         self.diagram.update_flows()
 
     # ---------------------------------------------------------------------
@@ -183,6 +183,9 @@ class DiagramControl:
             Returns:
                 * **Types** (:class:`boolean<boolean>`)
         """
+        if connection is None:
+            return False, "Connection is None"
+
         if connection.diagram != self.diagram:
             return False, "Wrong Diagram"
 
@@ -236,13 +239,13 @@ class DiagramControl:
                 continue
             x, y = self.diagram.blocks[key].get_position()
             if alignment == "BOTTOM":
-                self.diagram.blocks[key].move(0, bottom -y)
+                self.diagram.blocks[key].move(0, bottom - y)
             if alignment == "TOP":
-                self.diagram.blocks[key].move(0, top -y)
+                self.diagram.blocks[key].move(0, top - y)
             if alignment == "LEFT":
-                self.diagram.blocks[key].move(left -x, 0)
+                self.diagram.blocks[key].move(left - x, 0)
             if alignment == "RIGHT":
-                self.diagram.blocks[key].move(right -x, 0)
+                self.diagram.blocks[key].move(right - x, 0)
         self.diagram.update_flows()
 
     # ----------------------------------------------------------------------
@@ -258,10 +261,10 @@ class DiagramControl:
                 * **new_msg** (:class:`str<str>`)
         """
         self.diagram.set_modified(True)
-        action = (copy(self.diagram.blocks),    #0
-                  copy(self.diagram.connectors),#1
-                  copy(self.diagram.comments),  #2
-                  new_msg)              #3
+        action = (copy(self.diagram.blocks),  # 0
+                  copy(self.diagram.connectors),  # 1
+                  copy(self.diagram.comments),  # 2
+                  new_msg)  # 3
         self.diagram.undo_stack.append(action)
 
     # ---------------------------------------------------------------------
@@ -276,7 +279,6 @@ class DiagramControl:
         self.diagram.blocks = action[0]
         self.diagram.connectors = action[1]
         self.diagram.comments = action[2]
-        msg = action[3]
         self.diagram.redraw()
         self.diagram.redo_stack.append(action)
         if len(self.diagram.undo_stack) == 0:
@@ -294,7 +296,6 @@ class DiagramControl:
         self.diagram.blocks = action[0]
         self.diagram.connectors = action[1]
         self.diagram.comments = action[2]
-        msg = action[3]
         self.diagram.redraw()
         self.diagram.undo_stack.append(action)
 
@@ -335,7 +336,8 @@ class DiagramControl:
         if file_name is not None:
             self.diagram.file_name = file_name
         if self.diagram.file_name is None:
-            self.diagram.file_name = "Cadeia_" + str(time.time()) + ".mscd"
+            self.diagram.file_name = "Diagram_" + \
+                                     datetime.now().strftime("%m-%d-%Y-%H:%M:%S") + ".mscd"
         if self.diagram.file_name.find(".mscd") == -1:
             self.diagram.file_name = self.diagram.file_name + ".mscd"
 
@@ -386,18 +388,20 @@ class DiagramControl:
             x, y, width, height = self.get_min_max()
 
         if self.diagram.get_window() is None:
-            return False
+            return False, "Diagram has no window"
+
         pixbuf = Gdk.pixbuf_get_from_window(
-                        self.diagram.get_window(),
-                        x,
-                        y,
-                        width,
-                        height)
+            self.diagram.get_window(),
+            x,
+            y,
+            width,
+            height
+            )
 
         if pixbuf is None:
             return False, "No image to export"
 
-        test, tmp_buffer = pixbuf.save_to_bufferv("png",  [], [])
+        test, tmp_buffer = pixbuf.save_to_bufferv("png", [], [])
 
         try:
             save_file = open(file_name, "w")

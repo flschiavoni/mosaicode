@@ -21,7 +21,7 @@ class TestConfirmDialog(TestBase):
     def test_run_ok(self):
         t1 = threading.Thread(target=self.dialog.run, args=());
         t1.start()
-        sleep(1)
+        sleep(0.5)
         self.dialog.response(Gtk.ResponseType.OK)
         self.refresh_gui()
         t1.join()
@@ -29,7 +29,7 @@ class TestConfirmDialog(TestBase):
     def test_run_cancel(self):
         t1 = threading.Thread(target=self.dialog.run, args=());
         t1.start()
-        sleep(1)
+        sleep(0.5)
         self.dialog.response(Gtk.ResponseType.CANCEL)
         self.refresh_gui()
         t1.join()

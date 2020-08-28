@@ -6,8 +6,8 @@ import gettext
 import os
 import signal
 import subprocess
-from copy import copy, deepcopy
-from threading import Event, Thread
+from copy import deepcopy
+from threading import Thread
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -21,7 +21,6 @@ from mosaicode.control.publisher import Publisher
 from mosaicode.GUI.about import About
 from mosaicode.GUI.block import Block
 from mosaicode.GUI.codewindow import CodeWindow
-from mosaicode.GUI.comment import Comment
 from mosaicode.GUI.diagram import Diagram
 from mosaicode.GUI.messagedialog import MessageDialog
 from mosaicode.GUI.confirmdialog import ConfirmDialog
@@ -30,7 +29,6 @@ from mosaicode.GUI.opendialog import OpenDialog
 from mosaicode.GUI.preferencewindow import PreferenceWindow
 from mosaicode.GUI.selectcodetemplate import SelectCodeTemplate
 from mosaicode.model.blockmodel import BlockModel
-from mosaicode.model.codetemplate import CodeTemplate
 from mosaicode.persistence.preferencespersistence import PreferencesPersistence
 from mosaicode.system import System as System
 
@@ -58,7 +56,8 @@ class MainControl():
             plugin.load(self.main_window)
 
         self.main_window.menu.update_recent_files(
-            System.get_preferences().recent_files)
+                    System.get_preferences().recent_files
+                    )
         self.main_window.menu.update_examples(System.get_list_of_examples())
 
     # ----------------------------------------------------------------------
@@ -173,22 +172,22 @@ class MainControl():
         if diagram is None:
             return False
 
-        while True:
-            name = SaveDialog(
-                self.main_window,
-                title=_("Export diagram as png"),
-                filename=System.get_user_dir() + "/" + diagram.file_name + ".png",
-                filetype="png").run()
+        name = SaveDialog(
+                    self.main_window,
+                    title=_("Export diagram as png"),
+                    filename=diagram.file_name + ".png",
+                    filetype="png"
+                    ).run()
 
-            if name is None:
+        if name is None:
+            return
+        if name.find(".png") == -1:
+            name = name + ".png"
+        if name is not None and os.path.exists(name) is True:
+            msg = _("File exists. Overwrite?")
+            result = ConfirmDialog(msg, self.main_window).run()
+            if result != Gtk.ResponseType.OK:
                 return
-            if name.find(".png") == -1:
-                name = name + ".png"
-            if name is not None and os.path.exists(name) is True:
-                msg = _("File exists. Overwrite?")
-                result = ConfirmDialog(msg, self.main_window).run()
-                if result == Gtk.ResponseType.OK:
-                    break
 
         result, message = DiagramControl(diagram).export_png(name)
 
@@ -205,7 +204,8 @@ class MainControl():
             * **Types** (:class:`boolean<boolean>`)
         """
         PreferencesPersistence.save(
-            System.get_preferences(), System.get_user_dir())
+                System.get_preferences(), System.get_user_dir()
+                )
         if self.main_window.work_area.close_tabs():
             Gtk.main_quit()
         else:
@@ -513,7 +513,7 @@ class MainControl():
     # ----------------------------------------------------------------------
     def zoom_out(self):
         """
-        This method decreasses the zoom.
+        This method decreases the zoom.
         """
         diagram = self.main_window.work_area.get_current_diagram()
         if diagram is None:

@@ -85,7 +85,7 @@ class CodeGenerator():
             self.codes[key] = []
 
         active_weight = 0
-        # The maxWeight is, in the worst case, the block list lenght
+        # The maxWeight is, in the worst case, the block list length
         max_weight = len(self.blockList)
         while active_weight <= max_weight:
             if len(self.blockList) == 0:
@@ -97,7 +97,8 @@ class CodeGenerator():
             active_weight += 1
 
     # ----------------------------------------------------------------------
-    def __generate_port_var_name_code(self, block, port):
+    @staticmethod
+    def __generate_port_var_name_code(block, port):
         """
         This method generate the block code.
         """

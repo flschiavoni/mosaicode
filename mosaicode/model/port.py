@@ -2,8 +2,8 @@
 
 
 class Port(object):
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-few-public-methods
+    # pylint: disable=too-many-instance-attributes
 
     """
     This class contains the base attributes of each block port.

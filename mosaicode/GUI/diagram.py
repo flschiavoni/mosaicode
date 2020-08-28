@@ -481,6 +481,8 @@ class Diagram(GooCanvas.Canvas, DiagramModel):
         i = 0
         to_remove = []
         for connector in self.connectors:
+            if not connector.output:
+                to_remove.append(connector)
             if not isinstance(connector, Connector) and connector.output:
                 outb = self.blocks[connector.output.id]
                 conn = Connector(self, outb, connector.output_port)
@@ -488,12 +490,11 @@ class Diagram(GooCanvas.Canvas, DiagramModel):
                 conn.input_port = connector.input_port
                 connector = conn
                 self.connectors[i] = conn
-            else:
-                to_remove.append(connector)
             if connector.output:
                 if  connector.output.id not in self.blocks or \
                         connector.input.id not in self.blocks:
                     to_remove.append(connector)
+            print connector
             i = i + 1
         for conn in to_remove:
             self.connectors.remove(conn)

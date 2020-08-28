@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 class DiagramModel(object):
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-few-public-methods
+    # pylint: disable=too-many-instance-attributes
 
     # ----------------------------------------------------------------------
     def __init__(self):

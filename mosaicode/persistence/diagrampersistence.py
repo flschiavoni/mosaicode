@@ -3,9 +3,9 @@
 """
 This module contains the DiagramPersistence class.
 """
-import os
 import gi
 from copy import deepcopy
+
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
 from datetime import datetime
@@ -18,10 +18,12 @@ from mosaicode.model.diagrammodel import DiagramModel
 
 tag_name = "mosaicode"
 
+
 class DiagramPersistence():
     """
     This class contains methods related the DiagramPersistence class.
     """
+
     # ----------------------------------------------------------------------
     @classmethod
     def load(cls, diagram):
@@ -108,10 +110,10 @@ class DiagramPersistence():
             to_block_in = to_block.ports[index]
 
             connection = ConnectionModel(diagram,
-                            from_block,
-                            from_block_out,
-                            to_block,
-                            to_block_in)
+                                         from_block,
+                                         from_block_out,
+                                         to_block,
+                                         to_block_in)
             dc.add_connection(connection)
 
         comments = parser.getTag("comments")
@@ -154,9 +156,9 @@ class DiagramPersistence():
         """
         parser = XMLParser()
         parser.addTag(tag_name)
-        parser.setTagAttr(tag_name,'version', value=System.VERSION)
-        parser.setTagAttr(tag_name,'zoom', value=diagram.zoom)
-        parser.setTagAttr(tag_name,'language', value=diagram.language)
+        parser.setTagAttr(tag_name, 'version', value=System.VERSION)
+        parser.setTagAttr(tag_name, 'zoom', value=diagram.zoom)
+        parser.setTagAttr(tag_name, 'language', value=diagram.language)
 
         parser.appendToTag(tag_name, 'code_template', value=diagram.code_template)
 
@@ -165,23 +167,23 @@ class DiagramPersistence():
             block = diagram.blocks[block_id]
             pos = block.get_position()
             parser.appendToTag(
-                    'blocks',
-                    'block',
-                    type=block.type,
-                    id=block.id,
-                    collapsed=block.is_collapsed,
-                    x=pos[0],
-                    y=pos[1]
-                    )
+                'blocks',
+                'block',
+                type=block.type,
+                id=block.id,
+                collapsed=block.is_collapsed,
+                x=pos[0],
+                y=pos[1]
+            )
             props = block.get_properties()
             for prop in props:
                 if "name" in prop and "value" in prop:
                     parser.appendToLastTag(
-                            'block',
-                            'property',
-                            key=str(prop["name"]),
-                            value=str(prop["value"])
-                            )
+                        'block',
+                        'property',
+                        key=str(prop["name"]),
+                        value=str(prop["value"])
+                    )
 
         parser.appendToTag(tag_name, 'connections')
         for connector in diagram.connectors:
@@ -209,7 +211,7 @@ class DiagramPersistence():
         auth.name = System.get_preferences().author
         auth.license = System.get_preferences().license
         auth.date = datetime.now()
-        diagram.authors.insert(0,auth)
+        diagram.authors.insert(0, auth)
 
         parser.appendToTag(tag_name, 'authors')
         for author in diagram.authors:

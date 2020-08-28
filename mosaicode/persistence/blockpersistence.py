@@ -4,16 +4,14 @@
 This module contains the BlockPersistence class.
 """
 import ast
-import inspect  # For module inspect
 import os
-import pkgutil  # For dynamic package load
-from os.path import join
 
 from mosaicode.model.blockmodel import BlockModel
 from mosaicode.persistence.persistence import Persistence
 from mosaicode.utils.XMLUtils import XMLParser
 
 tag_name = "MosaicodeBlock"
+
 
 class BlockPersistence():
     """
@@ -90,7 +88,7 @@ class BlockPersistence():
 
         block.source = "xml"
         parser = XMLParser()
-        main = parser.addTag(tag_name)
+        parser.addTag(tag_name)
         parser.setTagAttr(tag_name, 'type', block.type)
         parser.setTagAttr(tag_name, 'language', block.language)
         parser.setTagAttr(tag_name, 'extension', block.extension)
@@ -103,11 +101,11 @@ class BlockPersistence():
         parser.appendToTag(tag_name, 'codes')
         for key in block.codes:
             parser.appendToTag(
-                    'codes',
-                    'code',
-                    name_=key,
-                    value=block.codes[key]
-                    )
+                'codes',
+                'code',
+                name_=key,
+                value=block.codes[key]
+            )
 
         parser.appendToTag(tag_name, 'properties')
         for key in block.properties:
@@ -116,13 +114,13 @@ class BlockPersistence():
         parser.appendToTag(tag_name, 'ports')
         for port in block.ports:
             parser.appendToTag(
-                        'ports',
-                        'port',
-                        conn_type=port.conn_type,
-                        name_=port.name,
-                        label=port.label,
-                        type_=port.type
-                        )
+                'ports',
+                'port',
+                conn_type=port.conn_type,
+                name_=port.name,
+                label=port.label,
+                type_=port.type
+            )
 
         if (path is not None) and not Persistence.create_dir(path):
             return False
@@ -139,7 +137,10 @@ class BlockPersistence():
             block_file = open(path, 'w')
             block_file.write(parser.getXML())
             block_file.close()
-        except IOError as e: 
+        except IOError as e:
+            from mosaicode.system import System
+            System()
+            System.log(e)
             return False
         return True
 

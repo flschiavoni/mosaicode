@@ -5,14 +5,11 @@ This module contains the CodeTemplatePersistence class.
 """
 import ast
 import os
-import inspect  # For module inspect
-import pkgutil  # For dynamic package load
-from os.path import join
 from mosaicode.utils.XMLUtils import XMLParser
 from mosaicode.model.codetemplate import CodeTemplate
 from mosaicode.persistence.persistence import Persistence
-
 tag_name = "MosaicodeCodeTemplate"
+
 
 class CodeTemplatePersistence():
     """
@@ -38,7 +35,7 @@ class CodeTemplatePersistence():
 
         if parser.getTag(tag_name) is None:
             return None
-        ct = parser.getTag(tag_name)
+        parser.getTag(tag_name)
 
         code_template = CodeTemplate()
         code_template.name = parser.getTagAttr(tag_name, "name")
@@ -99,15 +96,15 @@ class CodeTemplatePersistence():
         parser.appendToTag(tag_name, 'files')
         for key in code_template.files:
             parser.appendToTag(
-                    'files',
-                    'file',
-                    name_=key,
-                    value=code_template.files[key]
-                    )
+                'files',
+                'file',
+                name_=key,
+                value=code_template.files[key]
+            )
 
         parser.appendToTag(tag_name, 'properties')
         for key in code_template.properties:
-            parser.appendToTag('properties', 'property', value=key) 
+            parser.appendToTag('properties', 'property', value=key)
 
         if not Persistence.create_dir(path):
             return False
@@ -117,6 +114,9 @@ class CodeTemplatePersistence():
             code_template_file.write(parser.prettify())
             code_template_file.close()
         except IOError as e:
+            from mosaicode.system import System
+            System()
+            System.log(e)
             return False
         return True
 

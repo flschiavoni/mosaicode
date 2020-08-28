@@ -20,7 +20,7 @@ class TestMessageDialog(TestBase):
                     )
         t1 = threading.Thread(target=self.dialog.run, args=());
         t1.start()
-        sleep(1)
+        sleep(0.5)
         self.dialog.response(Gtk.ResponseType.OK)
         self.refresh_gui()
         t1.join()

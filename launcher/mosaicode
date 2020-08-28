@@ -34,14 +34,27 @@ def main(argv):
 
     # Parameter passing
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', type=str, nargs='*',
-                        help="List of files to open")
     parser.add_argument(
-        "--print-ports", action="store_true", help="Print ports")
-    parser.add_argument("--print-blockmodels",
-                        action="store_true", help="Print blockmodels")
-    parser.add_argument("--print-templates",
-                        action="store_true", help="Print code templates")
+            'file',
+            type=str,
+            nargs='*',
+            help="List of files to open"
+            )
+    parser.add_argument(
+            "--print-ports",
+            action="store_true",
+            help="Print ports"
+            )
+    parser.add_argument(
+            "--print-blockmodels",
+            action="store_true",
+            help="Print blockmodels"
+            )
+    parser.add_argument(
+            "--print-templates",
+            action="store_true",
+            help="Print code templates"
+            )
     args = parser.parse_args()
 
     System()

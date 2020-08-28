@@ -3,9 +3,9 @@
 
 
 class ConnectionModel(object):
-# pylint: disable=too-few-public-methods
-# pylint: disable=too-many-instance-attributes
-# pylint: disable-msg=too-many-arguments
+    # pylint: disable=too-few-public-methods
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable-msg=too-many-arguments
 
     def __init__(self, diagram, output, output_port, input_=None, input_port=None):
         self.output = output

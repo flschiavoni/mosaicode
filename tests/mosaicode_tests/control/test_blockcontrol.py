@@ -17,6 +17,7 @@ class TestBlockControl(TestBase):
     # ----------------------------------------------------------------------
     def test_load_ports(self):
         block = self.create_block()
+
         # if it is not a dictionary
         block.ports.append("x")
 
@@ -24,8 +25,9 @@ class TestBlockControl(TestBase):
         block.ports.append({"label": "Output",
                             "conn_type": "Output",
                             "name": "output"})
+
         # if "conn_type" not in port
-        block.ports.append({"type": "Output",
+        block.ports.append({"type": "Test",
                             "label": "Output",
                             "name": "output"})
 
