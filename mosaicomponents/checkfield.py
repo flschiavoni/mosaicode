@@ -31,8 +31,7 @@ class CheckField(Field):
         self.field = Gtk.Switch()
         self.field.set_property("margin-left", 20)
 
-        if isinstance(self.data["value"], str) \
-                or isinstance(self.data["value"], unicode):
+        if isinstance(self.data["value"], (str, unicode)):
             if self.data["value"] == "True":
                 self.field.set_active(True)
             else:

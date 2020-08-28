@@ -31,6 +31,7 @@ class ColorField(Field):
 
         self.check_values()
         self.create_label()
+        self.color = None
 
         box = Gtk.HBox()
         box.set_property("margin-left", 20)
@@ -76,7 +77,8 @@ class ColorField(Field):
             color_selection = self.dialog.get_color_selection()
             self.color = color_selection.get_current_rgba()
             self.color_block.get_style_context().add_class(
-                    "frame {background-color: " + self.color.to_string() + ";}")
+                "frame {background-color: " + self.color.to_string() + ";}"
+                )
         self.dialog.destroy()
 
     # --------------------------------------------------------------------------
@@ -84,15 +86,17 @@ class ColorField(Field):
         result_string = Gdk.RGBA.from_color(self.color).to_string()
         if len(self.format) == 6:
             result = '#%02x%02x%02x' % (
-                        self.color.red / 256,
-                        self.color.green / 256,
-                        self.color.blue / 256)
+                self.color.red / 256,
+                self.color.green / 256,
+                self.color.blue / 256
+                )
             return result
         if len(self.format) == 3:
             result = '#%01x%01x%01x' % (
-                    self.color.red / 4096,
-                    self.color.green / 4096,
-                    self.color.blue / 4096)
+                self.color.red / 4096,
+                self.color.green / 4096,
+                self.color.blue / 4096
+                )
             return result
         return result_string
 
@@ -119,5 +123,6 @@ class ColorField(Field):
         result = color.parse(value)
         self.color = color.to_color()
         self.color_block.get_style_context().add_class(
-                "frame {background-color: " + value + ";}")
+            "frame {background-color: " + value + ";}"
+            )
 # -----------------------------------------------------------------------------
