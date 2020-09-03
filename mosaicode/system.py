@@ -50,6 +50,9 @@ class System(object):
 
         def __init__(self):
             self.Log = None
+            self.user_dir = os.path.join(os.path.expanduser("~"), System.APP)
+            self.__preferences = None
+
             self.__code_templates = {}
             self.__blocks = {}
             self.__ports = {}
@@ -63,14 +66,11 @@ class System(object):
                            "/diagrams/",
                            "/code-gen/"]
             for name in directories:
-                if not os.path.isdir(System.get_user_dir() + name):
+                if not os.path.isdir(os.path.join(self.user_dir, name)):
                     try:
-                        os.makedirs(System.get_user_dir() + name)
+                        os.makedirs(os.path.join(self.user_dir, name))
                     except Exception as error:
                         System.log(error)
-
-            self.__preferences = PreferencesPersistence.load(
-                System.get_user_dir())
 
         # ----------------------------------------------------------------------
         def reload(self):
@@ -98,12 +98,24 @@ class System(object):
             return copy(self.__code_templates)
 
         # ----------------------------------------------------------------------
+        def add_code_template(self, code_template):
+            self.__code_templates[code_template.type] = code_template
+
+        # ----------------------------------------------------------------------
         def get_ports(self):
             return copy(self.__ports)
 
         # ----------------------------------------------------------------------
         def add_port(self, port):
             self.__ports[port.type] = port
+
+        # ----------------------------------------------------------------------
+        def get_user_dir(self):
+            return self.user_dir
+
+        # ----------------------------------------------------------------------
+        def set_user_dir(self, user_dir):
+            self.user_dir = user_dir
 
         # ----------------------------------------------------------------------
         def remove_port(self, port):
@@ -114,11 +126,17 @@ class System(object):
 
         # ----------------------------------------------------------------------
         def get_preferences(self):
+            if self.__preferences is None:
+                self.__preferences = PreferencesPersistence.load(self.user_dir)
             return self.__preferences
 
         # ----------------------------------------------------------------------
         def get_plugins(self):
             return self.__plugins
+
+        # ----------------------------------------------------------------------
+        def add_plugin(self, plugin):
+            return self.__plugins.append(plugin)
 
         # ----------------------------------------------------------------------
         def __load_examples(self):
@@ -287,9 +305,22 @@ class System(object):
     @classmethod
     def get_preferences(cls):
         """
-        This method returns System installed blocks.
+        This method returns System's preferences.
         """
         return cls.instance.get_preferences()
+
+    # ----------------------------------------------------------------------
+    @classmethod
+    def add_recent_files(cls, file_name):
+        """
+        This method add recent files to the System's preferences.
+        """
+        preferences = System.get_preferences()
+        if file_name in preferences.recent_files:
+            preferences.recent_files.remove(file_name)
+        preferences.recent_files.insert(0, file_name)
+        if len(preferences.recent_files) > 10:
+            preferences.recent_files.pop()
 
     # ----------------------------------------------------------------------
     @classmethod
@@ -298,6 +329,14 @@ class System(object):
         This method returns System installed blocks.
         """
         return cls.instance.get_plugins()
+
+    # ----------------------------------------------------------------------
+    @classmethod
+    def add_plugin(cls, plugin):
+        """
+        This method returns System installed blocks.
+        """
+        return cls.instance.add_plugin(plugin)
 
     # ----------------------------------------------------------------------
     @classmethod
@@ -322,6 +361,14 @@ class System(object):
         This method returns System installed code templates.
         """
         return cls.instance.get_code_templates()
+
+    # ----------------------------------------------------------------------
+    @classmethod
+    def add_code_template(cls, code_template):
+        """
+        This method add to the System a new code template.
+        """
+        cls.instance.add_code_template(code_template)
 
     # ----------------------------------------------------------------------
     @classmethod
@@ -378,8 +425,12 @@ class System(object):
     # ----------------------------------------------------------------------
     @classmethod
     def get_user_dir(cls):
-        home_dir = os.path.expanduser("~")
-        return os.path.join(home_dir, System.APP)
+        return cls.instance.get_user_dir()
+
+    # ----------------------------------------------------------------------
+    @classmethod
+    def set_user_dir(cls, user_dir):
+        cls.instance.set_user_dir(user_dir)
 
     # ----------------------------------------------------------------------
     @classmethod

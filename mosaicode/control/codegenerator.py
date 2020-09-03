@@ -38,6 +38,63 @@ class CodeGenerator():
             return None
 
     # ----------------------------------------------------------------------
+    @classmethod
+    def save_source(cls, diagram=None, codes=None, generator=None):
+        if diagram is None:
+            return False, "Diagram is None"
+
+        if generator is None:
+            generator, message = CodeGenerator.get_code_generator(diagram)
+            if generator is None:
+                return False, message
+
+        if codes is None:
+            files = generator.generate_code()
+        else:
+            files = codes
+
+        for key in files:
+            file_name = System.get_dir_name(diagram) + key
+            try:
+                codeFile = open(file_name, 'w')
+                codeFile.write(files[key])
+                codeFile.close()
+            except Exception as error:
+                return False, "Could not save file"
+
+        return True, "Saving code to " + file_name
+
+    # ----------------------------------------------------------------------
+    @classmethod
+    def get_code_generator(cls, diagram):
+        if diagram is None:
+            return None, "Please, provide a diagram."
+
+        if diagram.language is None:
+            return None, "You shall not generate the code of an empty diagram!"
+
+        if diagram.code_template is not None:
+            return CodeGenerator(diagram), "Success"
+
+        template_list = []
+        code_templates = System.get_code_templates()
+
+        for key in code_templates:
+            if code_templates[key].language == diagram.language:
+                template_list.append(code_templates[key])
+
+        if len(template_list) == 0:
+            return None, "Generator not available for the language " + diagram.language + "."
+
+        if len(template_list) == 1:
+            diagram.code_template = deepcopy(template_list[0])
+            return CodeGenerator(diagram), "Success"
+
+        select = SelectCodeTemplate(self.main_window, template_list)
+        diagram.code_template = deepcopy(select.get_value())
+        return CodeGenerator(diagram), "Success"
+
+    # ----------------------------------------------------------------------
     def __prepare_block_list(self):
         """
         This method prepare the blocks to code generation.

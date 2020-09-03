@@ -43,34 +43,32 @@ class TestBase(unittest.TestCase):
         diagram.code_template = self.create_code_template()
         return diagram
 
-    def create_full_diagram(self):
-        main_window = self.create_main_window()
+    def create_full_diagram(self, main_window=None):
+        if main_window is None:
+            main_window = self.create_main_window()
         diagram = Diagram(main_window)
         self.assertEquals(diagram.last_id, 0)
         diagram.language = "Test"
         diagram.zoom = 2
         diagram_control = self.create_diagram_control(diagram)
 
+        block0 = self.create_block(diagram_control)
+        result = diagram_control.add_block(block0)
+
         block1 = self.create_block(diagram_control)
         result = diagram_control.add_block(block1)
         assert result
-        self.assertEquals(diagram.last_id, 1)
-        self.assertEquals(len(diagram.blocks),1)
-        self.assertEquals(len(diagram.blocks[0].ports), 4)
 
         block2 = self.create_block(diagram_control)
         result = diagram_control.add_block(block2)
         assert result
-        self.assertEquals(diagram.last_id, 2)
-        self.assertEquals(len(diagram.blocks),2)
-        self.assertEquals(len(diagram.blocks[1].ports), 4)
 
         connection = ConnectionModel(
                     diagram,
                     block1,
                     block1.ports[0],
                     block2,
-                    block2.ports[1]
+                    block2.ports[0]
                     )
         result = diagram_control.add_connection(connection)
         self.assertEquals(result[0], False)
@@ -84,6 +82,17 @@ class TestBase(unittest.TestCase):
                     )
         result = diagram_control.add_connection(connection)
         self.assertEquals(result[1], "Success")
+
+        connection = ConnectionModel(
+                    diagram,
+                    block2,
+                    block2.ports[1],
+                    block1,
+                    block1.ports[1]
+                    )
+        result = diagram_control.add_connection(connection)
+        self.assertEquals(result[0], False)
+
 
         connection = ConnectionModel(
                     diagram,
@@ -101,6 +110,9 @@ class TestBase(unittest.TestCase):
 
         comment = self.create_comment(diagram)
         diagram_control.add_comment(comment)
+        comment = self.create_comment(diagram)
+        diagram_control.add_comment(comment)
+        diagram.code_template = self.create_code_template()
         return diagram
 
 
@@ -195,8 +207,8 @@ class TestBase(unittest.TestCase):
         code_template = CodeTemplate()
         code_template.name = "webaudio"
         code_template.type = "Test"
-        code_template.language = "javascript"
-        code_template.command = "python -m webbrowser -t $dir_name$index.html\n"
+        code_template.language = "Test"
+        code_template.command = "python\n"
         code_template.description = "Javascript / webaudio code template"
 
         code_template.code_parts = ["onload", "function", "declaration", "execution", "html"]
@@ -268,5 +280,5 @@ Developed by: $author$
 */
 $single_code[function]$
 """
-        System.get_code_templates()[code_template.type] = code_template
+        System.add_code_template(code_template)
         return code_template

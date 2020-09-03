@@ -125,9 +125,9 @@ class BlockControl():
     def delete_block(cls, block):
         if block.file is not None:
             os.remove(block.file)
-            return True
+            return True, "Success"
         else:
-            return False
+            return False, "Could not remove block " + block.type
 
     # ----------------------------------------------------------------------
     @classmethod

@@ -7,6 +7,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from blockstreeview import BlocksTreeView
+from mosaicode.system import System as System
 
 
 class BlockNotebook(Gtk.Notebook):
@@ -29,7 +30,7 @@ class BlockNotebook(Gtk.Notebook):
         self.set_scrollable(True)
 
     # ----------------------------------------------------------------------
-    def update_blocks(self, blocks):
+    def update_blocks(self):
         """
         This methods update all blocks loaded for each library.
 
@@ -42,6 +43,7 @@ class BlockNotebook(Gtk.Notebook):
             self.remove_page(0)
             self.tabs.pop()
 
+        blocks = System.get_blocks()
         for x in blocks:
             instance = blocks[x]
             name = instance.language

@@ -13,6 +13,10 @@ class TestMainWindow(TestBase):
     def test_set_title(self):
         self.main_window.set_title("Test")
 
+    def test_set_title(self):
+        diagram = self.create_diagram(self.main_window)
+        self.main_window.add_diagram(diagram)
+
     def test_update(self):
         self.main_window.update()
 

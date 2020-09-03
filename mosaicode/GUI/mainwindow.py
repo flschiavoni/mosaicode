@@ -163,4 +163,14 @@ class MainWindow(Gtk.Window):
 
         """
         Gtk.Window.set_title(self, "Mosaicode (" + title + ")")
+
+    # ----------------------------------------------------------------------
+    def add_diagram(self, diagram):
+        """
+
+        This method adds a Diagram to the MainWindow.
+
+        """
+        self.work_area.add_diagram(diagram)
+
 # ----------------------------------------------------------------------

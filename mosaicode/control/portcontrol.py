@@ -81,11 +81,11 @@ class PortControl():
         System()
         ports = System.get_ports()
         if port_key not in ports:
-            return False
+            return False, "This port does not exist in System!"
         port = ports[port_key]
         if port.file is not None:
             os.remove(port.file)
-            return True
+            return True, "Success"
         else:
-            return False
+            return False, "Could not remove port " + port_key
 # ----------------------------------------------------------------------

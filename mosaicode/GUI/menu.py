@@ -8,6 +8,7 @@ import gettext
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from mosaicode.system import System as System
 
 
 _ = gettext.gettext
@@ -40,10 +41,6 @@ class Menu(Gtk.MenuBar):
         file_menu.append(Gtk.SeparatorMenuItem())
         self.create_menu(_("Save"), "<Control>S", file_menu, mc.save)
         self.create_menu(_("Save as..."), None, file_menu, mc.save_as)
-        self.create_menu(_("Save as example..."), None,
-                         file_menu, mc.save_as_example)
-        self.create_menu(_("Export Diagram As PNG..."), "<Control>E",
-                         file_menu, mc.export_diagram)
         file_menu.append(Gtk.SeparatorMenuItem())
         self.create_menu(_("Exit"), "<Control>Q", file_menu, mc.exit)
         self.add_menu_category(_("File"), file_menu)
@@ -90,8 +87,12 @@ class Menu(Gtk.MenuBar):
         self.create_menu(_("Uncollapse All"), None,
                          view_menu, mc.uncollapse_all)
         view_menu.append(Gtk.SeparatorMenuItem())
-        self.__create_check_menu(
-            _("Show Grid"), "<Control>g", view_menu, mc.show_grid)
+        self.show_grid = self.__create_check_menu(
+            _("Show Grid"),
+            "<Control>g",
+            view_menu,
+            mc.show_grid
+            )
         self.add_menu_category(_("View"), view_menu)
 
         # -------------------------- Insert -------------------------------------
@@ -162,7 +163,12 @@ class Menu(Gtk.MenuBar):
         if accel is not None:
             key, mod = Gtk.accelerator_parse(accel)
             item.add_accelerator(
-                "activate", self.accel_group, key, mod, Gtk.AccelFlags.VISIBLE)
+                "activate",
+                self.accel_group,
+                key,
+                mod,
+                Gtk.AccelFlags.VISIBLE
+                )
         menu.append(item)
         if action is not None:
             item.connect("activate", action)
@@ -214,7 +220,9 @@ class Menu(Gtk.MenuBar):
         return None
 
     # ----------------------------------------------------------------------
-    def update_blocks(self, blocks):
+    def update_blocks(self):
+        blocks = System.get_blocks()
+
         for widget in self.block_menu.get_children():
             self.block_menu.remove(widget)
 
@@ -279,11 +287,12 @@ class Menu(Gtk.MenuBar):
         self.main_window.main_control.add_block(data)
 
     # ----------------------------------------------------------------------
-    def update_examples(self, list_of_examples):
+    def update_examples(self):
 
         for widget in self.example_menu.get_children():
             self.example_menu.remove(widget)
         # Create submenu
+        list_of_examples = System.get_list_of_examples()
         submenu = None
         for example in list_of_examples:
             directory_list = example.split("/")
@@ -338,14 +347,16 @@ class Menu(Gtk.MenuBar):
 
     # ----------------------------------------------------------------------
 
-    def update_recent_files(self, list_of_recent_files):
+    def update_recent_files(self):
         """
         This method update recent files.
         """
+        list_of_recent_files = System.get_preferences().recent_files
+
         for widget in self.recent_files_menu.get_children():
             self.recent_files_menu.remove(widget)
 
-        if not list_of_recent_files:
+        if list_of_recent_files is None or len(list_of_recent_files) == 0:
             menu_item = Gtk.MenuItem.new_with_label(_("<empty>"))
             self.recent_files_menu.append(menu_item)
             self.recent_files_menu.show_all()

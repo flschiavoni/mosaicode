@@ -6,6 +6,7 @@ from gi.repository import Gdk
 from tests.mosaicode_tests.test_base import TestBase
 from mosaicode.system import System
 from mosaicode.GUI.diagram import Diagram
+from mosaicode.control.diagramcontrol import DiagramControl
 
 class TestDiagram(TestBase):
 
@@ -31,17 +32,13 @@ class TestDiagram(TestBase):
         self.diagram.show_block_menu(self.block1, event)
 
     def test_change_zoom(self):
-        self.diagram.change_zoom(System.ZOOM_IN)
-        self.diagram.change_zoom(System.ZOOM_OUT)
-        self.diagram.change_zoom(System.ZOOM_ORIGINAL)
+        DiagramControl(self.diagram).change_zoom(System.ZOOM_IN)
+        DiagramControl(self.diagram).change_zoom(System.ZOOM_OUT)
+        DiagramControl(self.diagram).change_zoom(System.ZOOM_ORIGINAL)
 
     def test_show_elements(self):
         self.diagram.show_comment_property(self.comment)
         self.diagram.show_block_property(self.block1)
-
-    def test_selection(self):
-        self.diagram.select_all()
-        self.diagram.deselect_all()
 
     def test_connection(self):
         self.diagram.start_connection(self.block1, self.block1.ports[0])

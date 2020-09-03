@@ -5,3 +5,4 @@ class TestPlugin(TestBase):
 
     def test_init(self):
         model = Plugin()
+        model.load(None)

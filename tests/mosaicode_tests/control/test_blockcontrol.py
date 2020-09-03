@@ -5,16 +5,17 @@ from mosaicode.model.blockmodel import BlockModel
 import os
 
 class TestBlockControl(TestBase):
+
     def test_init(self):
         BlockControl()
 
-    # ----------------------------------------------------------------------
     def test_export_xml(self):
         System()
         System.reload()
         BlockControl.export_xml()
+        BlockControl.add_new_block(self.create_block())
+        BlockControl.print_block(self.create_block())
 
-    # ----------------------------------------------------------------------
     def test_load_ports(self):
         block = self.create_block()
 
@@ -39,7 +40,6 @@ class TestBlockControl(TestBase):
 
         BlockControl.load_ports(block, System.get_ports())
 
-    # ----------------------------------------------------------------------
     def test_load(self):
         file_name = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  "assets",
@@ -54,27 +54,21 @@ class TestBlockControl(TestBase):
         block = BlockControl.load(file_name)
         assert not isinstance(block, BlockModel)
 
-    # ----------------------------------------------------------------------
-    def test_add_new_block(self):
-        BlockControl.add_new_block(self.create_block())
-
-    # ----------------------------------------------------------------------
     def test_delete_block(self):
         block = self.create_block()
-        file_name = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                 "test_file")
+        file_name = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "test_file"
+            )
 
         f = open(file_name, 'w')
         f.close()
         block.file = file_name
-        ok = BlockControl.delete_block(block)
+        ok, message = BlockControl.delete_block(block)
         assert ok
 
         block = self.create_block()
         block.file = None
-        ok = BlockControl.delete_block(self.create_block())
+        ok, message = BlockControl.delete_block(self.create_block())
         assert not ok
 
-    # ----------------------------------------------------------------------
-    def test_print_block(self):
-        BlockControl.print_block(self.create_block())

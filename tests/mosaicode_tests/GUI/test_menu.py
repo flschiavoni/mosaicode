@@ -25,9 +25,9 @@ class TestMenu(TestBase):
     def test_update_examples(self):
         System.get_list_of_examples().append("language/framework/test")
         System.get_list_of_examples().append("language/framework/test1")
-        self.menu.update_examples(System.get_list_of_examples())
+        self.menu.update_examples()
         System.get_list_of_examples().append("test")
-        self.menu.update_examples(System.get_list_of_examples())
+        self.menu.update_examples()
         example_menu = self.menu.example_menu
         language = example_menu.get_children()[0].get_submenu()
         extension = language.get_children()[0].get_submenu()
@@ -35,14 +35,14 @@ class TestMenu(TestBase):
         example.emit("activate")
 
     def test_update_recent_files(self):
-        self.menu.update_recent_files(["file1", "file2"])
-        self.menu.update_recent_files(["file1", "file2"])
-        self.menu.update_recent_files(None)
+        self.menu.update_recent_files()
+        System.get_preferences().recent_files = None
+        self.assertEquals(System.get_preferences().recent_files, None)
+        self.menu.update_recent_files()
 
     def test_update_blocks(self):
-        System()
-        self.menu.update_blocks(System.get_blocks())
-        self.menu.update_blocks(System.get_blocks())
+        self.menu.update_blocks()
+        self.menu.update_blocks()
 
         block_menu = self.menu.block_menu
         language = block_menu.get_children()[0].get_submenu()
@@ -56,7 +56,7 @@ class TestMenu(TestBase):
         self.refresh_gui()
 
     def test_recent_files(self):
-        self.menu.update_recent_files(["file1", "file2"])
+        self.menu.update_recent_files()
         self.menu.recent_files_menu.get_children()[0].emit("activate")
         self.refresh_gui()
 

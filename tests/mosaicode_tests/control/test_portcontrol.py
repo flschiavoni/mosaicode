@@ -17,10 +17,6 @@ class TestPortControl(TestBase):
 
     def test_export_xml(self):
         PortControl.export_xml()
-
-    def test_load(self):
         PortControl.load("test.xml")
-
-    def test_print_port(self):
         PortControl.print_port(self.create_port())
 

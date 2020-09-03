@@ -67,18 +67,18 @@ class PreferencesPersistence:
         parser = XMLParser()
         parser.addTag(tag_name)
 
-        parser.setTagAttr(tag_name,'author', prefs.author)
-        parser.setTagAttr(tag_name,'license', prefs.license)
+        parser.setTagAttr(tag_name, 'author', prefs.author)
+        parser.setTagAttr(tag_name, 'license', prefs.license)
 
-        parser.setTagAttr(tag_name,'default_directory', prefs.default_directory)
-        parser.setTagAttr(tag_name,'default_filename', prefs.default_filename)
-        parser.setTagAttr(tag_name,'grid', prefs.grid)
+        parser.setTagAttr(tag_name, 'default_directory', prefs.default_directory)
+        parser.setTagAttr(tag_name, 'default_filename', prefs.default_filename)
+        parser.setTagAttr(tag_name, 'grid', prefs.grid)
         parser.setTagAttr(tag_name, 'network_port', prefs.port)
-        parser.setTagAttr(tag_name,'width', prefs.width)
-        parser.setTagAttr(tag_name,'height', prefs.height)
-        parser.setTagAttr(tag_name,'hpaned_work_area', prefs.hpaned_work_area)
-        parser.setTagAttr(tag_name,'vpaned_bottom', prefs.vpaned_bottom)
-        parser.setTagAttr(tag_name,'vpaned_left', prefs.vpaned_left)
+        parser.setTagAttr(tag_name, 'width', prefs.width)
+        parser.setTagAttr(tag_name, 'height', prefs.height)
+        parser.setTagAttr(tag_name, 'hpaned_work_area', prefs.hpaned_work_area)
+        parser.setTagAttr(tag_name, 'vpaned_bottom', prefs.vpaned_bottom)
+        parser.setTagAttr(tag_name, 'vpaned_left', prefs.vpaned_left)
 
         parser.appendToTag(tag_name, 'recent_files')
 

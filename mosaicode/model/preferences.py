@@ -17,6 +17,7 @@ class Preferences(object):
 
         self.recent_files = []
         from mosaicode.system import System
+        System()
         self.default_directory = os.path.join(System.get_user_dir(), "code-gen")
         self.default_filename = "%n"
         self.grid = 10

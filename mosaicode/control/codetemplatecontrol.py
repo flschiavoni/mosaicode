@@ -60,11 +60,14 @@ class CodeTemplateControl():
         System()
         code_templates = System.get_code_templates()
         if code_template_key not in code_templates:
-            return False
+            return False, "This code template does not exist in System"
         code_template = code_templates[code_template_key]
+
         if code_template.file is not None:
             os.remove(code_template.file)
-        return code_template.file
+            return True, "File " + code_template.file + " deleted"
+        else:
+            return False, "Could not remove " + code_template.file
 
     # ----------------------------------------------------------------------
     @classmethod

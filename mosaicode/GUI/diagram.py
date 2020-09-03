@@ -60,6 +60,7 @@ class Diagram(GooCanvas.Canvas, DiagramModel):
 
         # Used for cycle detection
         self.show()
+        self.main_window.add_diagram(self)
 
     # ----------------------------------------------------------------------
     def __on_motion_notify(self, canvas_item, event):
@@ -321,26 +322,6 @@ class Diagram(GooCanvas.Canvas, DiagramModel):
             comment.update_flow()
 
     # ----------------------------------------------------------------------
-    def change_zoom(self, value):
-        """
-        This method change zoom.
-
-            Parameters:
-               * **value** (:class:`float<float>`)
-        """
-        zoom = self.zoom
-        if value == System.ZOOM_ORIGINAL:
-            zoom = System.ZOOM_ORIGINAL
-        elif value == System.ZOOM_IN:
-            zoom = zoom + 0.1
-        elif value == System.ZOOM_OUT:
-            zoom = zoom - 0.1
-        self.zoom = zoom
-        self.set_scale(self.zoom)
-        self.update_flows()
-        self.set_modified(True)
-
-    # ----------------------------------------------------------------------
     def show_comment_property(self, comment):
         """
         This method show comment property.
@@ -379,20 +360,6 @@ class Diagram(GooCanvas.Canvas, DiagramModel):
             conn.is_selected = False
         for comment in self.comments:
             comment.is_selected = False
-
-    # ----------------------------------------------------------------------
-    def select_all(self):
-        """
-        This method select all blocks in diagram.
-        """
-        for key in self.blocks:
-            self.blocks[key].is_selected = True
-        for conn in self.connectors:
-            conn.is_selected = True
-        for comment in self.comments:
-            comment.is_selected = True
-        self.update_flows()
-        Gtk.Widget.grab_focus(self)
 
     # ----------------------------------------------------------------------
     def move_selected(self, x, y):
@@ -494,7 +461,6 @@ class Diagram(GooCanvas.Canvas, DiagramModel):
                 if  connector.output.id not in self.blocks or \
                         connector.input.id not in self.blocks:
                     to_remove.append(connector)
-            print connector
             i = i + 1
         for conn in to_remove:
             self.connectors.remove(conn)

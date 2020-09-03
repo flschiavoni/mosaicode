@@ -9,4 +9,6 @@ class Plugin(object):  # pylint: disable=too-few-public-methods
     def __init__(self):
         self.label = ""
 
+    def load(self, main_window):
+        pass
 # ------------------------------------------------------------------------------

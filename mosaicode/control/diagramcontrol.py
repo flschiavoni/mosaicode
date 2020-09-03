@@ -4,15 +4,17 @@
 This module contains the DiagramControl class.
 """
 import gi
-
+gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk
 from gi.repository import Gdk
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime
 from mosaicode.utils.FileUtils import *
 from mosaicode.system import System as System
 from mosaicode.persistence.diagrampersistence import DiagramPersistence
 from mosaicode.GUI.comment import Comment
+from mosaicode.GUI.block import Block
 from mosaicode.model.commentmodel import CommentModel
 from mosaicode.model.blockmodel import BlockModel
 from mosaicode.model.connectionmodel import ConnectionModel
@@ -37,25 +39,37 @@ class DiagramControl:
             Returns:
                 * **Types** (:class:`boolean<boolean>`)
         """
-        if self.diagram.language is not None and self.diagram.language != block.language:
-            System.log("Block language is different from diagram language.")
-            return False
+        if self.diagram is None:
+            return False, "This diagram is None, you can not add a block."
+
+        if block is None:
+            return False, "Houston, we have a problem! Is ir an empty block?"
+
         if self.diagram.language is None or self.diagram.language == 'None':
             self.diagram.language = block.language
 
+        if self.diagram.language != block.language:
+            return False, "Block language is different from diagram language."
+
         self.do("Add Block")
+        new_block = BlockModel(block)
+        new_block = deepcopy(new_block)
+        new_block = Block(self.diagram, new_block)
         self.diagram.last_id = max(int(self.diagram.last_id), int(block.id))
         if block.id < 0:
             block.id = self.diagram.last_id
         self.diagram.last_id += 1
         self.diagram.blocks[block.id] = block
-        return True
+        self.diagram.redraw()
+        return True, "Success"
 
     # ---------------------------------------------------------------------
     def paste(self):
         """
         This method paste a block.
         """
+        if self.diagram is None:
+            return False
         replace = {}
         self.diagram.deselect_all()
         # interact into blocks, add blocks and change their id
@@ -68,19 +82,21 @@ class DiagramControl:
             block.x += 20
             block.y += 20
             block.id = -1
-            block = self.diagram.main_window.main_control.add_block(block)
-            if block is None:
-                return
-            replace[widget.id] = block
-            block.is_selected = True
+            new_block = BlockModel(block)
+            new_block = deepcopy(new_block)
+            new_block = Block(self.diagram, new_block)
+            if not self.add_block(new_block):
+                continue
+            replace[widget.id] = new_block
+            new_block.is_selected = True
 
         # interact into connections changing block ids
         for widget in clipboard:
             if not isinstance(widget, ConnectionModel):
                 continue
             # if a connector is copied without blocks
-            if widget.output.id not in replace or widget.input.id \
-                    not in replace:
+            if widget.output.id not in replace \
+                    or widget.input.id not in replace:
                 continue
             output_block = replace[widget.output.id]
             output_port = widget.output_port
@@ -106,6 +122,8 @@ class DiagramControl:
         """
         This method copy a block.
         """
+        if self.diagram is None:
+            return False
         mc = self.diagram.main_window.main_control
         mc.reset_clipboard()
         for key in self.diagram.blocks:
@@ -121,11 +139,29 @@ class DiagramControl:
                 continue
             mc.get_clipboard().append(comment)
 
+    # ----------------------------------------------------------------------
+    def select_all(self):
+        """
+        This method select all blocks in diagram.
+        """
+        if self.diagram is None:
+            return False
+        for key in self.diagram.blocks:
+            self.diagram.blocks[key].is_selected = True
+        for conn in self.diagram.connectors:
+            conn.is_selected = True
+        for comment in self.diagram.comments:
+            comment.is_selected = True
+        self.diagram.update_flows()
+        Gtk.Widget.grab_focus(self.diagram)
+
     # ---------------------------------------------------------------------
     def cut(self):
         """
         This method delete a block.
         """
+        if self.diagram is None:
+            return False
         self.do("Cut")
         self.copy()
         self.delete()
@@ -135,6 +171,8 @@ class DiagramControl:
         """
         This method delete a block or connection.
         """
+        if self.diagram is None:
+            return False
         self.do("Delete")
         for key in self.diagram.blocks.copy():
             if not self.diagram.blocks[key].is_selected:
@@ -142,8 +180,6 @@ class DiagramControl:
             del self.diagram.blocks[key]
         for con in self.diagram.connectors:
             if not con.is_selected:
-                continue
-            if con not in self.diagram.connectors:
                 continue
             self.diagram.connectors.remove(con)
         for comment in self.diagram.comments:
@@ -164,6 +200,8 @@ class DiagramControl:
             Returns:
                 * **Types** (:class:`boolean<boolean>`)
         """
+        if self.diagram is None:
+            return False
         self.do("Add Comment")
         new_comment = Comment(self.diagram, comment)
         self.diagram.comments.append(new_comment)
@@ -212,6 +250,8 @@ class DiagramControl:
             Returns:
                 * **Types** (:class:`boolean<boolean>`)
         """
+        if self.diagram is None:
+            return False
         for block_id in self.diagram.blocks:
             block = self.diagram.blocks[block_id]
             block.is_collapsed = status
@@ -220,6 +260,8 @@ class DiagramControl:
 
     # ----------------------------------------------------------------------
     def align(self, alignment):
+        if self.diagram is None:
+            return False
         top = self.diagram.main_window.get_size()[1]
         bottom = 0
         left = self.diagram.main_window.get_size()[0]
@@ -252,6 +294,7 @@ class DiagramControl:
     def set_show_grid(self, status):
         if status is not None:
             self.diagram.show_grid = status
+        self.diagram.redraw()
 
     # ---------------------------------------------------------------------
     def do(self, new_msg):
@@ -260,6 +303,8 @@ class DiagramControl:
             Parameters:
                 * **new_msg** (:class:`str<str>`)
         """
+        if self.diagram is None:
+            return False
         self.diagram.set_modified(True)
         action = (copy(self.diagram.blocks),  # 0
                   copy(self.diagram.connectors),  # 1
@@ -272,6 +317,8 @@ class DiagramControl:
         """
         This method undo a modification.
         """
+        if self.diagram is None:
+            return False
         if len(self.diagram.undo_stack) < 1:
             return
         self.diagram.set_modified(True)
@@ -284,11 +331,35 @@ class DiagramControl:
         if len(self.diagram.undo_stack) == 0:
             self.diagram.set_modified(False)
 
+    # ----------------------------------------------------------------------
+    def change_zoom(self, value):
+        """
+        This method change zoom.
+
+            Parameters:
+               * **value** (:class:`float<float>`)
+        """
+        if self.diagram is None:
+            return False
+        zoom = self.diagram.zoom
+        if value == System.ZOOM_ORIGINAL:
+            zoom = System.ZOOM_ORIGINAL
+        elif value == System.ZOOM_IN:
+            zoom = zoom + 0.1
+        elif value == System.ZOOM_OUT:
+            zoom = zoom - 0.1
+        self.diagram.zoom = zoom
+        self.diagram.set_scale(self.diagram.zoom)
+        self.diagram.update_flows()
+        self.diagram.set_modified(True)
+
     # ---------------------------------------------------------------------
     def redo(self):
         """
         This method redo a modification.
         """
+        if self.diagram is None:
+            return False
         if len(self.diagram.redo_stack) < 1:
             return
         self.diagram.set_modified(True)
@@ -307,22 +378,25 @@ class DiagramControl:
         Returns:
             * **Types** (:class:`boolean<boolean>`)
         """
+        if self.diagram is None:
+            return None, "It is necessary to create a diagram and load on it."
+
+        if file_name is None and self.diagram.file_name is None:
+            return None, "Cannot Load without filename"
+
         if file_name is not None:
             self.diagram.file_name = file_name
-        else:
-            if self.diagram.file_name is None:
-                System.log("Cannot Load without filename")
-                return False
+
         if not os.path.exists(self.diagram.file_name):
-            System.log("File '" + self.diagram.file_name +
-                       "' does not exist!")
-            return False
+            return None, "File '" + self.diagram.file_name + "' does not exist!"
 
         DiagramPersistence.load(self.diagram)
         self.diagram.redo_stack = []
         self.diagram.undo_stack = []
+        self.diagram.redraw()
+        self.diagram.set_modified(False)
 
-        return True
+        return self.diagram, "Success"
 
     # ----------------------------------------------------------------------
     def save(self, file_name=None):
@@ -337,79 +411,10 @@ class DiagramControl:
             self.diagram.file_name = file_name
         if self.diagram.file_name is None:
             self.diagram.file_name = "Diagram_" + \
-                                     datetime.now().strftime("%m-%d-%Y-%H:%M:%S") + ".mscd"
+                datetime.now().strftime("%m-%d-%Y-%H:%M:%S") + ".mscd"
         if self.diagram.file_name.find(".mscd") == -1:
             self.diagram.file_name = self.diagram.file_name + ".mscd"
 
         return DiagramPersistence.save(self.diagram)
 
-    # ----------------------------------------------------------------------
-    def get_min_max(self):
-        """
-        This method get min and max.
-            Returns
-
-        """
-        min_x = self.diagram.main_window.get_size()[0]
-        min_y = self.diagram.main_window.get_size()[1]
-
-        max_x = 0
-        max_y = 0
-
-        for block_id in self.diagram.blocks:
-            block = self.diagram.blocks[block_id]
-            x, y = block.get_position()
-            if x < min_x:
-                min_x = x
-            if y < min_y:
-                min_y = y
-            if x + block.width > max_x:
-                max_x = x + block.width
-            if y + block.height > max_y:
-                max_y = y + block.height
-        return min_x, min_y, max_x - min_x, max_y - min_y
-
-    # ----------------------------------------------------------------------
-    def export_png(self, file_name="diagrama.png"):
-        """
-        This method export a png.
-
-        Returns:
-
-            * **Types** (:class:`boolean<boolean>`): True to Success.
-        """
-        if file_name is None:
-            file_name = "diagrama.png"
-
-        x, y, width, height = self.get_min_max()
-
-        if x < 0 or y < 0:
-            self.diagram.reload()
-            x, y, width, height = self.get_min_max()
-
-        if self.diagram.get_window() is None:
-            return False, "Diagram has no window"
-
-        pixbuf = Gdk.pixbuf_get_from_window(
-            self.diagram.get_window(),
-            x,
-            y,
-            width,
-            height
-            )
-
-        if pixbuf is None:
-            return False, "No image to export"
-
-        test, tmp_buffer = pixbuf.save_to_bufferv("png", [], [])
-
-        try:
-            save_file = open(file_name, "w")
-            save_file.write(tmp_buffer)
-            save_file.close()
-        except IOError as e:
-            System.log(e.strerror)
-            return False, e.strerror
-
-        return True, ""
 # ------------------------------------------------------------------------------

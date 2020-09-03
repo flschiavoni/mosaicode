@@ -1,171 +1,328 @@
+import gi
+import os
+import unittest
+import threading
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from time import sleep
+
 from tests.mosaicode_tests.test_base import TestBase
 from mosaicode.control.maincontrol import MainControl
-
+from mosaicode.control.diagramcontrol import DiagramControl
+from mosaicode.model.plugin import Plugin
+from mosaicode.system import System
 
 class TestMainControl(TestBase):
 
     def setUp(self):
-        self.main_control = MainControl(self.create_main_window())
+        self.main_window = self.create_main_window()
+        self.main_control = MainControl(self.main_window)
         self.main_control.init()
+        self.diagram = self.create_full_diagram(main_window=self.main_window)
+        self.main_window.work_area.add_diagram(self.diagram)
+        self.diagram.set_modified(False)
+
+    def test_init(self):
+        System()
+        System.add_plugin(Plugin())
+        self.main_control.init()
+
+    def test_select_open(self):
+        t1 = threading.Thread(target=self.main_control.select_open, args=(None,))
+        t1.start()
+        sleep(1)
+        if self.main_control.open_dialog:
+            self.main_control.open_dialog.response(Gtk.ResponseType.CANCEL)
+        t1.join()
+
+        diagram = self.create_full_diagram(main_window=self.main_window)
+        diagram.file_name = "/tmp/Test.mscd"
+        DiagramControl(diagram).save()
+        path = "/tmp/"
+        System.set_user_dir(path)
+
+        t1 = threading.Thread(target=self.main_control.select_open, args=(path,))
+        t1.start()
+        sleep(1)
+        if self.main_control.open_dialog:
+            self.main_control.open_dialog.set_filename("/tmp/Test.mscd")
+            self.main_control.open_dialog.response(Gtk.ResponseType.OK)
+        t1.join()
+        os.remove("/tmp/Test.mscd")
+
+    def test_open(self):
+        t1 = threading.Thread(target=self.main_control.open, args=("Test",))
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
+
+    def test_save(self):
+        # diagram is null
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+        t1 = threading.Thread(target=self.main_control.save, args=(None,))
+        t1.start()
+        sleep(1)
+        if self.main_control.save_dialog:
+            self.main_control.save_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
+
         self.main_control.new()
+        t1 = threading.Thread(target=self.main_control.save, args=(None,))
+        t1.start()
+        sleep(1)
+        if self.main_control.save_dialog:
+            self.main_control.save_dialog.response(Gtk.ResponseType.OK)
+        self.refresh_gui()
+        t1.join()
 
-    def test_about(self):
-        self.main_control.about()
+        # Cancel button
+        self.main_control.new()
+        t1 = threading.Thread(target=self.main_control.save, args=(None,))
+        t1.start()
+        sleep(1)
+        if self.main_control.save_dialog:
+            self.main_control.save_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
 
-    def test_add_block(self):
-        self.main_control.add_block(self.create_block())
-
-    def test_add_code_template(self):
-        self.main_control.add_code_template(self.create_code_template())
-
-    def test_add_comment(self):
-        self.main_control.add_comment()
-
-    def test_add_new_block(self):
-        self.main_control.add_new_block(self.create_block())
-
-    def test_add_port(self):
-        self.main_control.add_port(self.create_port())
-
-    def test_align_bottom(self):
-        self.main_control.align_bottom()
-
-    def test_align_left(self):
-        self.main_control.align_left()
-
-    def test_align_right(self):
-        self.main_control.align_right()
-
-    def test_align_top(self):
-        self.main_control.align_top()
-
-    def test_clear_console(self):
-        self.main_control.clear_console()
-
-    def test_close(self):
-        self.main_control.close()
-
-    def test_collapse_all(self):
-        self.main_control.collapse_all()
-
-    def test_copy(self):
-        self.main_control.copy()
-
-    def test_cut(self):
-        self.main_control.cut()
-
-    def test_delete(self):
-        self.main_control.delete()
-
-    def test_delete_block(self):
-        self.main_control.delete_block(self.create_block())
-
-    def test_delete_code_template(self):
-        self.main_control.delete_code_template(self.create_code_template())
-
-    def test_delete_port(self):
-        self.main_control.delete_port("port_key")
+    def test_save_as(self):
+        t1 = threading.Thread(target=self.main_control.save_as, args=())
+        t1.start()
+        sleep(1)
+        if self.main_control.save_dialog:
+            self.main_control.save_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
 
     def test_exit(self):
         self.main_control.exit()
 
-    def test_export_diagram(self):
-        self.main_control.export_diagram()
-
-    def test_get_clipboard(self):
-        self.main_control.get_clipboard()
-
-    def test_get_selected_block(self):
-        self.main_control.get_selected_block()
-
-    def test_init(self):
+        self.main_window = self.create_main_window()
+        self.main_control = MainControl(self.main_window)
         self.main_control.init()
-
-    def test_new(self):
         self.main_control.new()
 
-    def test_open(self):
-        self.main_control.open("Test")
+        diagram = self.main_window.work_area.get_current_diagram()
+        diagram.set_modified(True)
 
-    def test_paste(self):
-        self.main_control.paste()
+        t1 = threading.Thread(target=self.main_control.exit, args=())
+        t1.start()
+        sleep(1)
+        if self.main_window.work_area.confirm:
+            self.main_window.work_area.confirm.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
 
-    def test_preferences(self):
-        self.main_control.preferences()
-
-    def test_publish(self):
-        self.main_control.publish()
-
-    def test_redo(self):
-        self.main_control.redo()
-
-    def test_redraw(self):
-        self.main_control.redraw(True)
-        self.main_control.redraw(False)
-
-    def test_reset_clipboard(self):
+    def test_add_recent_files(self):
+        self.main_control.add_recent_files("Test")
+        self.main_control.add_recent_files("Test")
+        for i in range(0,20):
+            System.get_preferences().recent_files.append("Some File")
+        self.main_control.add_recent_files("Test")
+ 
+    def test_clipboard(self):
+        self.main_control.get_clipboard()
         self.main_control.reset_clipboard()
 
-    def test_run(self):
-        self.main_control.run()
-
-    def test_save(self):
-        self.main_control.save()
-        self.main_control.save(save_as=True)
-
-    def test_save_as(self):
-        self.main_control.save_as()
-
-    def test_save_as_example(self):
-        self.main_control.save_as_example()
+    def test_preferences(self):
+        t1 = threading.Thread(target=self.main_control.preferences, args=())
+        t1.start()
+        sleep(1)
+        if self.main_control.preference_window:
+            self.main_control.preference_window.close()
+        self.refresh_gui()
+        t1.join()
 
     def test_save_source(self):
         self.main_control.save_source()
-        self.main_control.save_source(codes="Test")
-        self.main_control.save_source(generator="Test")
 
-    def test_search(self):
-        self.main_control.search("Test")
-
-    def test_select_all(self):
-        self.main_control.select_all()
-
-    def test_select_open(self):
-        self.main_control.select_open()
-
-    def test_set_block(self):
-        self.main_control.set_block(self.create_block())
-
-    def test_set_recent_files(self):
-        self.main_control.set_recent_files("Test")
-
-    def test_show_grid(self):
-        self.main_control.show_grid(None)
-
-    def test_stop(self):
-        self.main_control.stop(None, None)
-
-    def test_uncollapse_all(self):
-        self.main_control.uncollapse_all()
-
-    def test_undo(self):
-        self.main_control.undo()
-
-    def test_update_all(self):
-        self.main_control.update_all()
-
-    def test_update_blocks(self):
-        self.main_control.update_blocks()
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+        t1 = threading.Thread(target=self.main_control.save_source, args=())
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.close()
+        t1.join()
 
     def test_view_source(self):
-        self.main_control.view_source()
+        t1 = threading.Thread(target=self.main_control.view_source, args=())
+        t1.start()
+        sleep(2)
+        if self.main_control.code_window:
+            self.main_control.code_window.close()
+        self.refresh_gui()
+        t1.join()
 
-    def test_zoom_in(self):
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+        t1 = threading.Thread(target=self.main_control.view_source, args=())
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
+
+    def test_run_stop(self):
+        self.main_control.run()
+        sleep(1)
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+        self.main_control.run()
+        self.main_control.stop(None, None)
+        self.main_control.update_blocks()
+        self.main_control.close()
+        self.main_control.new()
+
+    def test_publish(self):
+        self.main_control.publish()
+        # Twice to start / stop
+        self.main_control.publish()
+
+    def test_about(self):
+        t1 = threading.Thread(target=self.main_control.about, args=())
+        t1.start()
+        sleep(1)
+        if self.main_control.about_window:
+            self.main_control.about_window.close()
+        self.refresh_gui()
+        t1.join()
+
+    def test_search_clear(self):
+        self.main_control.search("Test")
+        self.main_control.set_block(self.create_block())
+        self.main_control.get_selected_block()
+        self.main_control.clear_console()
+        self.main_control.show_grid(None)
+        self.main_window.menu.show_grid.emit("activate")
+        
+    def test_add_block(self):
+        self.main_control.add_block(self.create_block())
+
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+
+        t1 = threading.Thread(
+            target=self.main_control.add_block,
+            args=(self.create_block(),)
+            )
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
+
+    def test_edit(self):
+        self.main_control.add_comment()
+        self.main_control.select_all()
+        self.main_control.cut()
+        self.main_control.copy()
+        self.main_control.paste()
+        self.main_control.delete()
+
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+        self.main_control.add_comment()
+        self.main_control.select_all()
+        self.main_control.cut()
+        self.main_control.copy()
+        self.main_control.paste()
+        self.main_control.delete()
+
+    def test_properties(self):
         self.main_control.zoom_in()
-
-    def test_zoom_normal(self):
-        self.main_control.zoom_normal()
-
-    def test_zoom_out(self):
         self.main_control.zoom_out()
+        self.main_control.zoom_normal()
+        self.main_control.align_bottom()
+        self.main_control.align_top()
+        self.main_control.align_left()
+        self.main_control.align_right()
+        self.main_control.collapse_all()
+        self.main_control.uncollapse_all()
 
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+        self.main_control.zoom_in()
+        self.main_control.zoom_out()
+        self.main_control.zoom_normal()
+        self.main_control.align_bottom()
+        self.main_control.align_top()
+        self.main_control.align_left()
+        self.main_control.align_right()
+        self.main_control.collapse_all()
+        self.main_control.uncollapse_all()
+
+    def test_undo_redo(self):
+        self.main_control.undo()
+        self.main_control.redo()
+
+        self.diagram.set_modified(False)
+        self.main_window.work_area.close_tabs()
+        self.main_control.undo()
+        self.main_control.redo()
+
+    def test_redraw_update(self):
+        self.main_control.redraw(True)
+        self.main_control.redraw(False)
+        self.main_control.update_all()
+
+    def test_add_delete_code_template(self):
+        self.main_control.add_code_template(self.create_code_template())
+
+        t1 = threading.Thread(
+            target=self.main_control.delete_code_template,
+            args=(self.create_code_template(),)
+            )
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
+
+        code_template = self.create_code_template()
+        System.add_code_template(code_template)
+        t1 = threading.Thread(
+            target=self.main_control.delete_code_template,
+            args=(code_template,)
+            )
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
+
+    def test_add__delete_port(self):
+        self.main_control.add_port(self.create_port())
+
+        t1 = threading.Thread(target=self.main_control.delete_port, args=("port",))
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
+
+    def test_add_delete_block(self):
+        self.main_control.add_new_block(self.create_block())
+
+        t1 = threading.Thread(
+            target=self.main_control.delete_block,
+            args=(self.create_block(),)
+            )
+        t1.start()
+        sleep(1)
+        if self.main_control.message_dialog:
+            self.main_control.message_dialog.response(Gtk.ResponseType.CANCEL)
+        self.refresh_gui()
+        t1.join()
